@@ -3,6 +3,9 @@ import { render } from "@react-email/render";
 import * as React from "react";
 import WaitlistConfirm from "@/emails/WaitlistConfirm";
 import WaitlistWelcome from "@/emails/WaitlistWelcome";
+import DownloadsReady, {
+  type DownloadArtefact,
+} from "@/emails/DownloadsReady";
 import { publicEnv, serverEnv } from "@/lib/env";
 import { signEmailToken } from "./signing";
 
@@ -102,6 +105,60 @@ export async function sendWelcomeEmail(params: {
     tags: [
       { name: "category", value: "waitlist" },
       { name: "stage", value: "welcome" },
+    ],
+  });
+
+  if (error) {
+    throw new Error(`[resend] ${error.name}: ${error.message}`);
+  }
+  return { id: data?.id ?? null };
+}
+
+/**
+ * Send the "Your Opticks Collection is ready" download email.
+ *
+ * Used by /api/downloads/request after the subscriber's identity and
+ * the R2 artefacts have been resolved. Per-artefact signed URLs were
+ * already produced upstream; this wrapper just renders the React Email
+ * template and ships it via Resend.
+ */
+export async function sendDownloadEmail(params: {
+  to: string;
+  artefacts: DownloadArtefact[];
+}): Promise<{ id: string | null }> {
+  const html = await render(
+    React.createElement(DownloadsReady, { artefacts: params.artefacts }),
+  );
+
+  const plainLines: string[] = [
+    "Your Opticks Collection is ready.",
+    "",
+    "The links below are signed for your email and expire in 24 hours.",
+    "",
+  ];
+  for (const a of params.artefacts) {
+    plainLines.push(`${a.slug.toUpperCase()} — v${a.version}`);
+    if (a.releaseNotes) plainLines.push(a.releaseNotes);
+    if (a.mac) plainLines.push(`  Mac:     ${a.mac}`);
+    if (a.windows) plainLines.push(`  Windows: ${a.windows}`);
+    plainLines.push("");
+  }
+  plainLines.push(
+    "macOS installation: right-click → Open → Open again (the builds are not yet code-signed).",
+    "",
+    "Questions? beta@opticksaudio.com",
+    "— Opticks Audio",
+  );
+
+  const { data, error } = await resend().emails.send({
+    from: fromHeader(),
+    to: params.to,
+    subject: "Your Opticks Collection is ready to download",
+    html,
+    text: plainLines.join("\n"),
+    tags: [
+      { name: "category", value: "downloads" },
+      { name: "stage", value: "delivery" },
     ],
   });
 

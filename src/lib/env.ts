@@ -23,6 +23,13 @@ const ServerSchema = z.object({
   RESEND_FROM_NAME: z.string().default("Opticks Audio"),
   // Used to sign things like unsubscribe links so users can't tamper.
   WAITLIST_SECRET: z.string().min(16),
+  // Cloudflare R2 — plug-in releases bucket. Optional so the marketing
+  // site keeps building when the downloads feature isn't configured yet.
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().default("opticks-audio-releases"),
+  R2_ENDPOINT: z.string().url().optional(),
 });
 
 export type PublicEnv = z.infer<typeof PublicSchema>;
@@ -55,6 +62,11 @@ export function serverEnv(): ServerEnv {
     RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
     RESEND_FROM_NAME: process.env.RESEND_FROM_NAME,
     WAITLIST_SECRET: process.env.WAITLIST_SECRET,
+    R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID,
+    R2_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID,
+    R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
+    R2_BUCKET: process.env.R2_BUCKET,
+    R2_ENDPOINT: process.env.R2_ENDPOINT,
   });
   if (!parsed.success) {
     throw new Error(

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Download, Bell } from "lucide-react";
 import type { Plugin } from "@/lib/plugins";
 import { WaitlistModal } from "@/components/waitlist/WaitlistModal";
+import { DownloadsForm } from "@/components/product/DownloadsForm";
 
 type OS = "mac" | "windows" | "unknown";
 
@@ -17,7 +19,13 @@ function detectOS(): OS {
 
 export function DownloadButtons({ plugin }: { plugin: Plugin }) {
   const [os, setOs] = useState<OS>("unknown");
+  // Two distinct entry points:
+  //   - modalOpen        → waitlist signup for "coming-soon" plug-ins.
+  //   - downloadFormOpen → "send me my links" form for "beta" plug-ins.
+  // The form is rendered inline (not in a modal) because it represents
+  // product delivery to a confirmed customer, not a capture moment.
   const [modalOpen, setModalOpen] = useState(false);
+  const [downloadFormOpen, setDownloadFormOpen] = useState(false);
 
   useEffect(() => {
     setOs(detectOS());
@@ -27,6 +35,24 @@ export function DownloadButtons({ plugin }: { plugin: Plugin }) {
   const isBeta = plugin.status === "beta";
   const macReady = isAvailable && Boolean(plugin.downloads.mac);
   const winReady = isAvailable && Boolean(plugin.downloads.windows);
+
+  // Click behaviour on an unavailable platform button:
+  //   - beta        → reveal the inline downloads form (existing
+  //                   subscribers can fetch a fresh signed URL).
+  //   - coming-soon → fall back to the waitlist capture modal.
+  const handleUnavailableClick = () => {
+    if (isBeta) {
+      setDownloadFormOpen(true);
+      // Defer the scroll so the form has time to mount.
+      requestAnimationFrame(() => {
+        document
+          .getElementById("downloads-inline")
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    } else {
+      setModalOpen(true);
+    }
+  };
 
   return (
     <>
@@ -39,7 +65,8 @@ export function DownloadButtons({ plugin }: { plugin: Plugin }) {
             highlighted={os === "mac"}
             available={macReady}
             href={plugin.downloads.mac}
-            onUnavailableClick={() => setModalOpen(true)}
+            isBeta={isBeta}
+            onUnavailableClick={handleUnavailableClick}
           />
           <DownloadButton
             os="windows"
@@ -48,23 +75,46 @@ export function DownloadButtons({ plugin }: { plugin: Plugin }) {
             highlighted={os === "windows"}
             available={winReady}
             href={plugin.downloads.windows}
-            onUnavailableClick={() => setModalOpen(true)}
+            isBeta={isBeta}
+            onUnavailableClick={handleUnavailableClick}
           />
         </div>
+
         {!isAvailable && (
           <div className="flex flex-wrap items-center gap-3 text-xs">
             <span className="font-mono uppercase tracking-[0.18em] text-foreground-subtle">
               {isBeta ? "Beta program · v" : "Coming soon · v"}
               {plugin.version}
             </span>
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-white/30 hover:bg-white/5"
-            >
-              <Bell className="size-3.5" />
-              Notify me at launch
-            </button>
+            {isBeta ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setDownloadFormOpen(true);
+                  requestAnimationFrame(() => {
+                    document
+                      .getElementById("downloads-inline")
+                      ?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                      });
+                  });
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-white/30 hover:bg-white/5"
+              >
+                <Download className="size-3.5" />
+                Get my download links
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-white/30 hover:bg-white/5"
+              >
+                <Bell className="size-3.5" />
+                Notify me at launch
+              </button>
+            )}
             {isBeta && (
               <a
                 href="mailto:beta@opticksaudio.com?subject=Beta program"
@@ -75,6 +125,44 @@ export function DownloadButtons({ plugin }: { plugin: Plugin }) {
             )}
           </div>
         )}
+
+        {/* Inline downloads form — only mounted on demand for beta plug-ins. */}
+        <AnimatePresence initial={false}>
+          {isBeta && downloadFormOpen && (
+            <motion.div
+              id="downloads-inline"
+              initial={{ opacity: 0, y: 6, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -6, height: 0 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="mt-5 rounded-2xl border border-border-strong bg-background-elevated/40 p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <span
+                    className="h-1.5 w-6 rounded-full"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, var(--spectrum-violet), var(--spectrum-cyan))",
+                    }}
+                  />
+                  <span className="text-xs uppercase tracking-[0.18em] text-foreground-muted">
+                    Beta delivery
+                  </span>
+                </div>
+                <h3 className="font-[family-name:var(--font-display)] text-xl text-foreground">
+                  Get your download links by email.
+                </h3>
+                <p className="mt-1 mb-4 text-sm text-foreground-muted">
+                  Enter the email you used to join the waitlist. We&rsquo;ll
+                  send signed links for the latest {plugin.name} build —
+                  Mac &amp; Windows where available.
+                </p>
+                <DownloadsForm plugin={plugin.slug} source="plugin_page" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <WaitlistModal
@@ -93,6 +181,7 @@ function DownloadButton({
   highlighted,
   available,
   href,
+  isBeta,
   onUnavailableClick,
 }: {
   os: OS;
@@ -101,12 +190,17 @@ function DownloadButton({
   highlighted: boolean;
   available: boolean;
   href?: string;
+  isBeta: boolean;
   onUnavailableClick: () => void;
 }) {
   const base =
     "group flex-1 flex items-center gap-4 rounded-2xl border px-5 py-4 transition-all duration-300 text-left";
 
   if (!available) {
+    // For beta plug-ins, the platform button doubles as a download
+    // request trigger — show the Download glyph to signal that intent.
+    // For coming-soon plug-ins it's a notify-me action, hence the bell.
+    const TrailingIcon = isBeta ? Download : Bell;
     return (
       <button
         type="button"
@@ -118,7 +212,7 @@ function DownloadButton({
           <div className="text-sm font-medium">{label}</div>
           <div className="text-xs font-mono opacity-70">{sublabel}</div>
         </div>
-        <Bell className="size-4 opacity-60 transition group-hover:opacity-100" />
+        <TrailingIcon className="size-4 opacity-60 transition group-hover:opacity-100" />
       </button>
     );
   }
