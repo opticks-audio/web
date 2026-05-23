@@ -50,10 +50,16 @@ export async function proxy(req: NextRequest) {
 
   const { pathname } = req.nextUrl;
   const isAdminArea = pathname.startsWith("/admin");
-  const isLoginRoute =
-    pathname === "/admin/login" || pathname.startsWith("/admin/login/");
+  // Public admin routes — these MUST stay accessible to unauthenticated
+  // users. /admin/auth/callback in particular is where the session is
+  // created from the magic-link code; gating it would chicken-and-egg
+  // the entire sign-in flow.
+  const isPublicAdminRoute =
+    pathname === "/admin/login" ||
+    pathname.startsWith("/admin/login/") ||
+    pathname.startsWith("/admin/auth/");
 
-  if (isAdminArea && !isLoginRoute && !user) {
+  if (isAdminArea && !isPublicAdminRoute && !user) {
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.searchParams.set("next", pathname);

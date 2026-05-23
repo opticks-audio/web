@@ -10,39 +10,70 @@ export const dynamic = "force-dynamic";
 /**
  * Magic-link landing page.
  *
- * Supabase's email contains a URL like:
- *   https://opticksaudio.com/admin/auth/callback?code=...&next=/admin
+ * Supabase emails this endpoint with one of two URL shapes depending on
+ * the flow that was used:
+ *   1. PKCE flow:   ?code=...
+ *   2. OTP/Signup:  ?token_hash=...&type=magiclink|signup|email
  *
- * We exchange the code for a session, then:
- *   - If the verified email IS in admin_users, redirect to ?next.
- *   - If NOT, sign them straight back out and redirect to /admin/login
- *     with an `error=unauthorized` flag so the UI can render a clean
- *     "your address is not authorised" message. Crucially, we DON'T
- *     leak whether the email exists in admin_users — the same error
- *     code is returned in every failure path.
+ * The first time an email touches Supabase Auth it gets the signup-
+ * style "Confirm your email" template (token_hash + type=signup). All
+ * subsequent magic-link requests get the PKCE flow with `code`. We
+ * handle both transparently so the user never sees a difference.
+ *
+ * After the session is established we:
+ *   - Verify the email is present (and not revoked) in admin_users.
+ *   - If it isn't, kill the session immediately and bounce to login
+ *     with `error=unauthorized` so unauthorised people can't sit on a
+ *     valid cookie. The same error code is returned in every failure
+ *     path so we don't leak admin_users membership.
  */
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;
   const code = url.searchParams.get("code");
+  const tokenHash = url.searchParams.get("token_hash");
+  const tokenType = url.searchParams.get("type");
   const next = url.searchParams.get("next") ?? "/admin";
 
   const loginUrl = url.clone();
   loginUrl.pathname = "/admin/login";
   loginUrl.search = "";
 
-  if (!code) {
+  if (!code && !tokenHash) {
     loginUrl.searchParams.set("error", "missing_code");
     return NextResponse.redirect(loginUrl);
   }
 
   const supa = await supabaseServer();
-  const { data, error } = await supa.auth.exchangeCodeForSession(code);
-  if (error || !data.user?.email) {
+
+  let email: string | null = null;
+  if (code) {
+    const { data, error } = await supa.auth.exchangeCodeForSession(code);
+    if (error || !data.user?.email) {
+      loginUrl.searchParams.set("error", "exchange_failed");
+      return NextResponse.redirect(loginUrl);
+    }
+    email = data.user.email.toLowerCase();
+  } else if (tokenHash) {
+    // OTP / signup confirmation flow. `type` arrives lowercased from
+    // Supabase: "magiclink" | "signup" | "email" | "recovery".
+    const type =
+      (tokenType as "magiclink" | "signup" | "email" | "recovery" | null) ??
+      "magiclink";
+    const { data, error } = await supa.auth.verifyOtp({
+      type,
+      token_hash: tokenHash,
+    });
+    if (error || !data.user?.email) {
+      loginUrl.searchParams.set("error", "exchange_failed");
+      return NextResponse.redirect(loginUrl);
+    }
+    email = data.user.email.toLowerCase();
+  }
+
+  if (!email) {
     loginUrl.searchParams.set("error", "exchange_failed");
     return NextResponse.redirect(loginUrl);
   }
-
-  const email = data.user.email.toLowerCase();
 
   // Verify admin membership. Service-role bypass — we already trust
   // the email because Supabase Auth just verified the magic link.

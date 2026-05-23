@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "./LoginForm";
+import { HashErrorWatcher } from "./HashErrorWatcher";
 
 export const metadata: Metadata = {
   title: "Admin · Opticks Audio",
@@ -16,6 +17,13 @@ const ERROR_MESSAGES: Record<string, string> = {
     "That sign-in link has expired or already been used. Request a new one below.",
   missing_code:
     "The sign-in link looks incomplete. Request a new one below.",
+  // Errors Supabase returns in the URL hash fragment when the OTP
+  // token has already been used or has aged out. We surface them with
+  // the same friendly copy as exchange_failed.
+  otp_expired:
+    "That sign-in link has expired. Magic links are valid for five minutes — request a fresh one below.",
+  access_denied:
+    "That sign-in link is no longer valid. Request a fresh one below.",
 };
 
 export default async function AdminLoginPage({
@@ -72,6 +80,8 @@ export default async function AdminLoginPage({
             {errorMessage}
           </div>
         )}
+
+        <HashErrorWatcher />
 
         <div className="mt-8">
           <LoginForm next={next ?? "/admin"} />
