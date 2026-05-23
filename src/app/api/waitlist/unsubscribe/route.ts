@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { verifyEmailToken } from "@/lib/waitlist/signing";
 import { publicEnv } from "@/lib/env";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
@@ -22,7 +22,7 @@ async function doUnsubscribe(token: string | null) {
     );
   }
 
-  const email = await verifyEmailToken(token);
+  const email = verifyEmailToken(token);
   if (!email) {
     return NextResponse.redirect(
       `${NEXT_PUBLIC_SITE_URL}/waitlist/unsubscribe?status=invalid`

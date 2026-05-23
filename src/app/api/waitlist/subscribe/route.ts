@@ -5,7 +5,7 @@ import { sendConfirmationEmail } from "@/lib/waitlist/email";
 import { hashIp } from "@/lib/waitlist/signing";
 import { rateLimit } from "@/lib/waitlist/rate-limit";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const PLUGIN_SLUGS = ["reflexion", "refraction", "inflexion"] as const;
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   const { email, source, interestedIn, locale, metadata } = parsed.data;
   const userAgent = req.headers.get("user-agent") ?? null;
-  const ipHash = await hashIp(ip);
+  const ipHash = hashIp(ip);
 
   const supa = supabaseAdmin();
 

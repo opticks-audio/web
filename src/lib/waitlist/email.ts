@@ -69,7 +69,7 @@ export async function sendWelcomeEmail(params: {
   to: string;
 }): Promise<{ id: string | null }> {
   const { NEXT_PUBLIC_SITE_URL } = publicEnv();
-  const unsubscribeToken = await signEmailToken(params.to);
+  const unsubscribeToken = signEmailToken(params.to);
   const unsubscribeUrl = `${NEXT_PUBLIC_SITE_URL}/waitlist/unsubscribe?token=${encodeURIComponent(
     unsubscribeToken
   )}`;
