@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
 
 export function CTA() {
   return (
@@ -39,24 +39,9 @@ export function CTA() {
               REFLEXION, REFRACTION and INFLEXION go live.
             </p>
 
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="mt-10 max-w-md mx-auto flex flex-col sm:flex-row gap-3"
-            >
-              <input
-                type="email"
-                required
-                placeholder="you@studio.com"
-                className="flex-1 rounded-full bg-background border border-border-strong px-5 py-3 text-sm placeholder:text-foreground-subtle focus:outline-none focus:border-foreground transition-colors"
-              />
-              <button
-                type="submit"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-foreground text-background px-6 py-3 text-sm font-medium hover:bg-foreground/90 transition-all"
-              >
-                Notify me
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-              </button>
-            </form>
+            <div className="mt-10 max-w-md mx-auto text-left">
+              <WaitlistForm source="site_cta" />
+            </div>
 
             <p className="mt-6 text-xs text-foreground-subtle">
               No spam. Unsubscribe anytime.{" "}

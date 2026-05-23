@@ -45,3 +45,58 @@ npm run build    # production build
   shaders.
 - The plug-in detail page (`src/app/plugins/[slug]/page.tsx`) is rendered
   statically via `generateStaticParams()`. Don't break that.
+
+## Waitlist (Phase 1) — current state
+
+The full waitlist infrastructure is **built and compiles**, but is NOT
+live yet because two external dependencies are pending. See
+`WAITLIST.md` for the architecture deep-dive.
+
+### What is done
+- Supabase project created (`izdomyvnavdipkijdvdy`). URL + publishable
+  key + secret key are in `.env.local` (gitignored).
+- Database migration written: `supabase/migrations/0001_waitlist.sql`.
+- API routes: `/api/waitlist/subscribe`, `/api/waitlist/confirm`,
+  `/api/waitlist/unsubscribe`.
+- UI: `WaitlistForm`, `WaitlistModal`, wired into CTA section and
+  `DownloadButtons` (clicking a disabled download opens the modal).
+- Email templates with React Email + Resend wrapper.
+- Landing pages: `/waitlist/confirmed`, `/waitlist/unsubscribe`.
+
+### ⚠️ BLOCKERS — pending user action
+
+These two steps must happen before the waitlist works end-to-end:
+
+1. **Run the SQL migration in Supabase.**
+   - Open https://supabase.com/dashboard/project/izdomyvnavdipkijdvdy/sql/new
+   - Paste contents of `supabase/migrations/0001_waitlist.sql`
+   - Click "Run". Expect "Success. No rows returned."
+
+2. **Resend — needs paid plan OR separate account.**
+   - User's Resend account (`keechupp28`) already uses its 1 free
+     domain for another project (`amazing.mx`).
+   - To add `opticksaudio.com`, user must EITHER:
+     - **Upgrade Resend to Pro ($20/mo)** — allows 10 domains, OR
+     - **Create a second Resend account** with a different email
+       (e.g. via `tuemail+opticks@gmail.com` gmail trick) and verify
+       `opticksaudio.com` there.
+   - Once verified, create an API key scoped to `opticksaudio.com`
+     ("Sending access" permission only) and paste it into
+     `RESEND_API_KEY` in `.env.local`.
+   - Cloudflare Email Routing should be set up at the same time so
+     `hello@opticksaudio.com` and `beta@opticksaudio.com` forward to
+     the user's personal inbox. ⚠️ Combine SPF records into a single
+     line (`v=spf1 include:amazonses.com include:_spf.mx.cloudflare.net ~all`)
+     to avoid breaking Resend deliverability.
+
+### Files to look at when resuming
+- `WAITLIST.md` — full architecture + production checklist.
+- `.env.local` — has Supabase credentials filled in, Resend pending.
+- `.env.example` — committed template for the same vars.
+- `supabase/migrations/0001_waitlist.sql` — schema to run.
+
+### Phase 2 (not started)
+- Stripe / Lemon Squeezy checkout → license generation
+- Cloudflare R2 signed-URL downloads
+- License-key activation API (machine_id + max 3 activations)
+- See WAITLIST.md "Future" section
