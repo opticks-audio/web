@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "motion/react";
-import Link from "next/link";
 import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
 
 export function CTA() {
@@ -42,13 +41,6 @@ export function CTA() {
             <div className="mt-10 max-w-md mx-auto text-left">
               <WaitlistForm source="site_cta" />
             </div>
-
-            <p className="mt-6 text-xs text-foreground-subtle">
-              No spam. Unsubscribe anytime.{" "}
-              <Link href="/#about" className="underline underline-offset-4 hover:text-foreground-muted">
-                Learn more
-              </Link>
-            </p>
           </div>
         </motion.div>
       </div>

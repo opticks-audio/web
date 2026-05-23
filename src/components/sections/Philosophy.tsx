@@ -9,8 +9,8 @@ const tenets = [
     body: "We don't model existing hardware. We model the underlying physics — then translate it into sound.",
   },
   {
-    title: "Studio-grade DSP",
-    body: "Built in C++ with the same standards used by the industry's most respected developers. Zero compromise on quality.",
+    title: "Native DSP, no shortcuts",
+    body: "Every algorithm is written in-house — from the differential equation to the final coefficient. No third-party engines, no template reverbs. The physics, translated directly into code.",
   },
   {
     title: "Tactile by design",

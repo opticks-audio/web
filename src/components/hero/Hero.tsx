@@ -48,7 +48,7 @@ export function Hero() {
               The Opticks Collection
             </span>
             <span className="text-foreground-subtle">·</span>
-            <span>Coming Soon</span>
+            <span>In development</span>
           </motion.div>
 
           <motion.h1

@@ -142,9 +142,9 @@ export default async function PluginPage({
                 </h2>
               </div>
               <p className="text-sm text-foreground-muted max-w-md leading-relaxed">
-                Every algorithm is engineered from first principles in C++ and
-                JUCE. No shortcuts, no off-the-shelf reverbs hidden behind a
-                new face.
+                Built from the equation up. Every filter, every modulator,
+                every line of signal flow is ours — no off-the-shelf reverbs
+                hidden behind a new face.
               </p>
             </div>
 

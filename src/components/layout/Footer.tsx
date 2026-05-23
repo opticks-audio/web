@@ -36,8 +36,8 @@ export function Footer() {
           <div className="col-span-2 md:col-span-2 space-y-4">
             <Logo />
             <p className="text-sm text-foreground-muted max-w-xs leading-relaxed">
-              Where physics becomes sound. Professional audio plugins built
-              from first principles.
+              A boutique audio house building plugins from the equation up.
+              Native DSP, no shortcuts.
             </p>
           </div>
 
