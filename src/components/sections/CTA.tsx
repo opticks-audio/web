@@ -30,7 +30,7 @@ export function CTA() {
               Be first
             </p>
             <h2 className="font-display text-[clamp(2.25rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.02em] max-w-3xl mx-auto">
-              The collection drops <span className="italic text-spectrum">soon.</span>
+              The collection ships <span className="italic text-spectrum">soon.</span>
               <br /> Be the first to hear it.
             </h2>
             <p className="mt-6 max-w-xl mx-auto text-foreground-muted">

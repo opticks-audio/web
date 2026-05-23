@@ -48,7 +48,7 @@ export function Hero() {
               The Opticks Collection
             </span>
             <span className="text-foreground-subtle">·</span>
-            <span>In development</span>
+            <span>Currently in beta</span>
           </motion.div>
 
           <motion.h1
@@ -69,8 +69,8 @@ export function Hero() {
             className="mt-8 max-w-xl text-lg md:text-xl text-foreground-muted leading-relaxed"
           >
             Professional audio plugins built from first principles. Inspired
-            by Newton&rsquo;s study of light — designed for producers who
-            shape sound like geometry.
+            by Newton&rsquo;s study of light. Native DSP, designed for
+            serious producers.
           </motion.p>
 
           <motion.div

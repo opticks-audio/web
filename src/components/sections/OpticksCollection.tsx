@@ -87,7 +87,7 @@ export function OpticksCollection() {
                       {p.tagline}
                     </p>
                     <div className="pt-3 flex items-center gap-3 text-[10px] font-mono uppercase tracking-[0.18em] text-foreground-subtle">
-                      <span>{p.physics}</span>
+                      <span>{p.spec}</span>
                     </div>
                   </div>
                 </div>

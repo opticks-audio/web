@@ -11,6 +11,8 @@ export type Plugin = {
   description: string;
   longDescription: string;
   physics: string;
+  /** One-line technical claim shown on the home page card. */
+  spec: string;
   accentFrom: string;
   accentTo: string;
   formats: string[];
@@ -42,6 +44,7 @@ export const plugins: Plugin[] = [
     longDescription:
       "REFLEXION is built around an eight-channel modulated Feedback Delay Network with an orthogonal Hadamard mixing matrix — the same architectural family as Lexicon's 480, Bricasti's M7 and Valhalla's algorithmic engines. A four-stage nested all-pass diffuser handles onset, a twelve-tap stereo cluster places early reflections inside the modelled space, and per-line modulation smears the comb-filter resonances that haunt cheaper reverbs into a tail that breathes.",
     physics: "Light reflecting between surfaces",
+    spec: "8-channel modulated FDN",
     accentFrom: "#7c3aed",
     accentTo: "#06b6d4",
     formats: ["VST3", "AU", "Standalone"],
@@ -91,6 +94,7 @@ export const plugins: Plugin[] = [
     longDescription:
       "REFRACTION models the complete signal path of a magnetic-tape echo: pre-emphasis head bump shelf, asymmetric tube-style soft clipper, age filter, worn-head resonance, and independent wow + flutter modulation with band-limited drift. Three independent tape heads tap a single delay line at musical intervals, then a continuous cross-feedback network blends between parallel and ping-pong stereo behaviour. Tape colour sits inside the feedback path, so each repeat truly darkens — exactly how a Roland RE-201 sounds after six passes.",
     physics: "Light bending through a prism",
+    spec: "Authentic tape model · wow + flutter",
     accentFrom: "#06b6d4",
     accentTo: "#10b981",
     formats: ["VST3", "AU", "Standalone"],
@@ -140,6 +144,7 @@ export const plugins: Plugin[] = [
     longDescription:
       "INFLEXION is a feedforward compressor with three topology voicings (VCA / FET / OPTO), each with its own detector blend and ballistics. A quadratic soft-knee gain computer, programme-dependent release (FET mode) and a two-stage release approximation (OPTO mode) give every topology the response you expect from its hardware namesake. An optional 2× oversampled transformer saturation stage adds the iron weight of a Shadow Hills or API console path without the aliasing that ruins cheaper plug-ins at heavy drive.",
     physics: "Curvature of motion",
+    spec: "VCA · FET · OPTO · transformer saturation",
     accentFrom: "#10b981",
     accentTo: "#f97316",
     formats: ["VST3", "AU", "Standalone"],
