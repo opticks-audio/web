@@ -258,6 +258,15 @@ to `admin_events`.
 
 ## Known follow-ups
 
+### Commercial positioning
+- **First**: ship the premium skeuomorphic UI for all three plug-ins
+  in `../opticks-dsp/` (Session 002 — see its `NEXT_SESSION.md`).
+- **Then**: come back and execute `UPGRADE_PLAN.md` Phase A
+  (screenshots, pricing, editorial scarcity) using the new screenshots
+  as the centrepiece.
+- See `UPGRADE_PLAN.md` for the full sequencing rationale + Phase B/C.
+
+### Engineering follow-ups
 - Phase 2C: `/admin/releases/new` form (upload .zip → R2 →
   `plugin_releases` row → set as current — all in one click).
 - Phase 2D: `/admin/broadcasts` for mass email to confirmed
