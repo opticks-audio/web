@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ArrowRight } from "lucide-react";
+import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
 
 export function CTA() {
   return (
@@ -34,30 +34,14 @@ export function CTA() {
               <br /> Be the first to hear it.
             </h2>
             <p className="mt-6 max-w-xl mx-auto text-foreground-muted">
-              REFLEXION, REFRACTION and INFLEXION are in private beta. Write us
-              if you produce, mix or master at a level where this matters —
-              we&rsquo;ll send a build and launch pricing when the collection goes live.
+              Leave your email and we&rsquo;ll send REFLEXION, REFRACTION and
+              INFLEXION the moment the collection ships — plus launch-week
+              pricing reserved for the list.
             </p>
 
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
-              <a
-                href="mailto:beta@opticksaudio.com?subject=Opticks%20Collection%20%E2%80%94%20beta%20access&body=I'd%20like%20to%20join%20the%20private%20beta%20for%20the%20Opticks%20Collection.%0A%0AI%20produce%2Fmix%2Fmaster%3A%20%5Bbrief%20context%5D%0ADAW%3A%20%5BAbleton%2FLogic%2FPro%20Tools%2F%E2%80%A6%5D%0AInterested%20in%3A%20%5BREFLEXION%2FREFRACTION%2FINFLEXION%5D%0A"
-                className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background px-6 py-3 text-sm font-medium hover:bg-foreground/90 transition-all duration-200"
-              >
-                Request beta access
-                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </a>
-              <a
-                href="mailto:hello@opticksaudio.com?subject=Opticks%20Audio"
-                className="inline-flex items-center gap-2 rounded-full border border-border-strong px-6 py-3 text-sm font-medium text-foreground hover:bg-background-elevated transition-all duration-200"
-              >
-                hello@opticksaudio.com
-              </a>
+            <div className="mt-10 max-w-md mx-auto text-left">
+              <WaitlistForm source="site_cta" />
             </div>
-
-            <p className="mt-8 text-xs font-mono uppercase tracking-[0.18em] text-foreground-subtle">
-              A public waitlist opens at launch.
-            </p>
           </div>
         </motion.div>
       </div>
