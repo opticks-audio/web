@@ -1,26 +1,176 @@
 @import "tailwindcss";
 
+/* =========================================================
+   Opticks Audio — Design System
+   Inspired by: Universal Audio, Arturia, Linear, Apple
+   ========================================================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core surface */
+  --background: #050507;
+  --background-elevated: #0a0a0f;
+  --background-glass: rgba(15, 15, 22, 0.6);
+  --foreground: #f5f5f7;
+  --foreground-muted: #9a9aa6;
+  --foreground-subtle: #5a5a66;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* Spectral accents (Opticks: light refracted through prism) */
+  --spectrum-violet: #7c3aed;
+  --spectrum-indigo: #4f46e5;
+  --spectrum-blue:   #2563eb;
+  --spectrum-cyan:   #06b6d4;
+  --spectrum-green:  #10b981;
+  --spectrum-yellow: #eab308;
+  --spectrum-orange: #f97316;
+  --spectrum-red:    #ef4444;
+
+  /* Brand */
+  --brand-primary: #e6e6ec;
+  --brand-accent: linear-gradient(
+    90deg,
+    #7c3aed 0%,
+    #4f46e5 14%,
+    #2563eb 28%,
+    #06b6d4 42%,
+    #10b981 56%,
+    #eab308 70%,
+    #f97316 84%,
+    #ef4444 100%
+  );
+
+  /* Type scale */
+  --font-display: var(--font-serif), "Times New Roman", serif;
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", Menlo, monospace;
+
+  /* Motion */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-elevated: var(--background-elevated);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-spectrum-violet: var(--spectrum-violet);
+  --color-spectrum-indigo: var(--spectrum-indigo);
+  --color-spectrum-blue: var(--spectrum-blue);
+  --color-spectrum-cyan: var(--spectrum-cyan);
+  --color-spectrum-green: var(--spectrum-green);
+  --color-spectrum-yellow: var(--spectrum-yellow);
+  --color-spectrum-orange: var(--spectrum-orange);
+  --color-spectrum-red: var(--spectrum-red);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
+html,
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv01", "cv11";
+  letter-spacing: -0.011em;
+  overflow-x: hidden;
+}
+
+/* Selection */
+::selection {
+  background: var(--spectrum-violet);
+  color: white;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Utility: spectral gradient text */
+.text-spectrum {
+  background: linear-gradient(
+    90deg,
+    #7c3aed 0%,
+    #4f46e5 16%,
+    #2563eb 32%,
+    #06b6d4 48%,
+    #10b981 64%,
+    #eab308 80%,
+    #f97316 92%,
+    #ef4444 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Utility: glass surface */
+.glass {
+  background: var(--background-glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border);
+}
+
+/* Subtle grain texture overlay */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+/* Animated spectrum sweep */
+@keyframes spectrum-sweep {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.spectrum-sweep {
+  background-size: 200% 200%;
+  animation: spectrum-sweep 8s var(--ease-out-quart) infinite;
+}
+
+/* Glow pulse */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.glow-pulse {
+  animation: glow-pulse 4s var(--ease-out-quart) infinite;
+}
+
+/* Disable selection on UI chrome */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
 }
