@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, Bell } from "lucide-react";
+import { Download, Mail } from "lucide-react";
 import type { Plugin } from "@/lib/plugins";
-import { WaitlistModal } from "@/components/waitlist/WaitlistModal";
 
 type OS = "mac" | "windows" | "unknown";
 
@@ -15,9 +14,16 @@ function detectOS(): OS {
   return "unknown";
 }
 
+function betaMailto(plugin: Plugin) {
+  const subject = `Opticks ${plugin.name} — beta access`;
+  const body = `I'd like to try ${plugin.name} (${plugin.category}) in the private beta.\n\nI produce/mix/master: [brief context]\nDAW: [Ableton/Logic/Pro Tools/…]\n`;
+  return `mailto:beta@opticksaudio.com?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
+}
+
 export function DownloadButtons({ plugin }: { plugin: Plugin }) {
   const [os, setOs] = useState<OS>("unknown");
-  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     setOs(detectOS());
@@ -27,62 +33,46 @@ export function DownloadButtons({ plugin }: { plugin: Plugin }) {
   const isBeta = plugin.status === "beta";
   const macReady = isAvailable && Boolean(plugin.downloads.mac);
   const winReady = isAvailable && Boolean(plugin.downloads.windows);
+  const requestUrl = betaMailto(plugin);
 
   return (
-    <>
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <DownloadButton
-            os="mac"
-            label="Download for Mac"
-            sublabel={plugin.systemRequirements.mac}
-            highlighted={os === "mac"}
-            available={macReady}
-            href={plugin.downloads.mac}
-            onUnavailableClick={() => setModalOpen(true)}
-          />
-          <DownloadButton
-            os="windows"
-            label="Download for Windows"
-            sublabel={plugin.systemRequirements.windows}
-            highlighted={os === "windows"}
-            available={winReady}
-            href={plugin.downloads.windows}
-            onUnavailableClick={() => setModalOpen(true)}
-          />
-        </div>
-        {!isAvailable && (
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="font-mono uppercase tracking-[0.18em] text-foreground-subtle">
-              {isBeta ? "Beta program · v" : "Coming soon · v"}
-              {plugin.version}
-            </span>
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-white/30 hover:bg-white/5"
-            >
-              <Bell className="size-3.5" />
-              Notify me at launch
-            </button>
-            {isBeta && (
-              <a
-                href="mailto:beta@opticksaudio.com?subject=Beta program"
-                className="text-foreground-muted underline-offset-4 hover:text-foreground hover:underline"
-              >
-                Request beta access →
-              </a>
-            )}
-          </div>
-        )}
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <DownloadButton
+          os="mac"
+          label="Download for Mac"
+          sublabel={plugin.systemRequirements.mac}
+          highlighted={os === "mac"}
+          available={macReady}
+          href={plugin.downloads.mac}
+          unavailableHref={requestUrl}
+        />
+        <DownloadButton
+          os="windows"
+          label="Download for Windows"
+          sublabel={plugin.systemRequirements.windows}
+          highlighted={os === "windows"}
+          available={winReady}
+          href={plugin.downloads.windows}
+          unavailableHref={requestUrl}
+        />
       </div>
-
-      <WaitlistModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        plugin={plugin.slug}
-      />
-    </>
+      {!isAvailable && (
+        <div className="flex flex-wrap items-center gap-3 text-xs">
+          <span className="font-mono uppercase tracking-[0.18em] text-foreground-subtle">
+            {isBeta ? "Beta program · v" : "Coming soon · v"}
+            {plugin.version}
+          </span>
+          <a
+            href={requestUrl}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-white/30 hover:bg-white/5"
+          >
+            <Mail className="size-3.5" />
+            Request access
+          </a>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -93,7 +83,7 @@ function DownloadButton({
   highlighted,
   available,
   href,
-  onUnavailableClick,
+  unavailableHref,
 }: {
   os: OS;
   label: string;
@@ -101,16 +91,15 @@ function DownloadButton({
   highlighted: boolean;
   available: boolean;
   href?: string;
-  onUnavailableClick: () => void;
+  unavailableHref: string;
 }) {
   const base =
     "group flex-1 flex items-center gap-4 rounded-2xl border px-5 py-4 transition-all duration-300 text-left";
 
   if (!available) {
     return (
-      <button
-        type="button"
-        onClick={onUnavailableClick}
+      <a
+        href={unavailableHref}
         className={`${base} border-border bg-background-elevated/30 text-foreground-muted hover:border-white/20 hover:bg-background-elevated/60 hover:text-foreground`}
       >
         <OSIcon os={os} />
@@ -118,8 +107,8 @@ function DownloadButton({
           <div className="text-sm font-medium">{label}</div>
           <div className="text-xs font-mono opacity-70">{sublabel}</div>
         </div>
-        <Bell className="size-4 opacity-60 transition group-hover:opacity-100" />
-      </button>
+        <Mail className="size-4 opacity-60 transition group-hover:opacity-100" />
+      </a>
     );
   }
 
